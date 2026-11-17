@@ -10,7 +10,7 @@ description: Stateless multi-role agent orchestration based on a Soul Tree and d
 This skill separates **spec (this file)** from **data (organization & tasks)**. Locations come from `config.json`, independent of the working directory.
 
 - **Skill package**: this file's directory, provided by the harness at load time. This file hardcodes no paths.
-- **Organization home `home`**: from `config.json`'s `home`; default `%USERPROFILE%\.courier` (Windows) or `$HOME/.courier` (POSIX). `config.json` is local and must not be committed; only `config.example.json` is tracked.
+- **Organization home `home`**: from `config.json`'s `home`; default `%USERPROFILE%\.lilliput` (Windows) or `$HOME/.lilliput` (POSIX). `config.json` is local and must not be committed; only `config.example.json` is tracked.
 
 ```text
 <home>\
@@ -43,7 +43,7 @@ A task family (main file + sub-files + artifacts) lives in exactly one place, ro
 
 ```json
 {
-  "home": "%USERPROFILE%\\.courier",
+  "home": "%USERPROFILE%\\.lilliput",
   "max_hops": 6
 }
 ```
@@ -65,7 +65,7 @@ A task family (main file + sub-files + artifacts) lives in exactly one place, ro
 On first load, or if `<home>\souls\index.md`, `<home>\workspaces\`, or `<home>\teams\` is missing, do not ask the human — run this one-time setup:
 
 1. **Create `config.json`** by state:
-   - **A — file missing**: first setup. Create with `home` resolved to an absolute path (`%USERPROFILE%\.courier` or `$HOME/.courier`) and `max_hops = 6`. Continue with steps 2–5.
+   - **A — file missing**: first setup. Create with `home` resolved to an absolute path (`%USERPROFILE%\.lilliput` or `$HOME/.lilliput`) and `max_hops = 6`. Continue with steps 2–5.
    - **B — file exists but `home` is missing on disk**: machine / user / drive change. Apply Hard Rule 3: stop and report; do not guess or rewrite; do not treat as A.
    - **C — file exists and `home` exists**: reuse as-is.
 
