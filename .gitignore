@@ -1,0 +1,5 @@
+# 本機 live 設定（含個人絕對路徑），不進版控
+config.json
+
+# 其他本機覆寫
+*.local.json

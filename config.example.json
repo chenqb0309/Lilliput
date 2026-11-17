@@ -1,0 +1,4 @@
+{
+  "home": "%USERPROFILE%\\.courier",
+  "max_hops": 6
+}
