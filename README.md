@@ -1,9 +1,41 @@
 # lilliput
 
-A stateless multi-role agent orchestration protocol built on a **Soul Tree** and **disposable subagents**.
-It lets an AI coding agent split one large task across specialized roles working as a relay, while moving
-context **out of the conversation and into files** — so tasks are reproducible, auditable, and resumable
-across sessions.
+**Stop losing context in long conversations.** Lilliput keeps an AI team's state in **plain files — not in the chat** — so disposable subagents hand off work like a relay, and a fresh session can pick up exactly where the last one stopped.
+
+```bash
+npx skills add chenqb0309/Lilliput
+```
+
+## The problem it solves
+
+| Without Lilliput | With Lilliput |
+|---|---|
+| Context explodes; the agent forgets earlier steps | State lives in files on disk, not in the chat |
+| One agent does everything | Specialized roles relay the work |
+| Restarting the session = starting over | A new session resumes from the main file |
+| "Did it really do that?" | Every hop leaves an auditable sub-file |
+
+## See it in action
+
+```
+You:  Use the dev-flow team to refactor the login module.
+
+Main: Using dev-flow (sub_doc → sub_test → sub_code → sub_audit). Confirm?
+You:  go
+```
+
+Lilliput provisions a **task family** and relays it, one role at a time:
+
+```text
+<home>\workspaces\_teams\dev-flow\active\
+├─ 20261118_login-refactor.md        ← main file: identity & state (single source of truth)
+├─ 20261118_login-refactor.001.md    ← sub_doc : task board
+├─ 20261118_login-refactor.002.md    ← sub_test: tests first
+├─ 20261118_login-refactor.003.md    ← sub_code: implementation
+└─ 20261118_login-refactor.004.md    ← sub_audit: audit report
+```
+
+Then **close the window and open a new session**: Lilliput reads the main file, sees which hop is next, and resumes. No memory, no lost context.
 
 ## Core concepts
 
@@ -14,6 +46,32 @@ across sessions.
 | **Team** | A reusable **workflow template** = an ordered `soul_id` list, stored under `teams\`. |
 | **Task family** | One task's context: a **main file** (single source of truth) + ordered **sub-files** + independent artifacts. |
 | **Main Agent** | Project manager: traverse the tree, pick a team, provision the task family, dispatch, verify, archive — never doing specialized detail work itself. |
+
+## Install
+
+**One-liner (skills CLI):**
+
+```bash
+npx skills add chenqb0309/Lilliput
+```
+
+> Requires Node.js ≥ 22.20. The CLI installs into your coding agent (OpenCode, Claude Code, Codex, Cursor, …).
+
+**Manual install:**
+
+```bash
+git clone https://github.com/chenqb0309/Lilliput
+cd Lilliput
+copy config.example.json config.json     # Windows  (POSIX: cp config.example.json config.json)
+```
+
+Then place the folder in your agent's skills path and edit `config.json`'s `home` if needed
+(env syntax `%USERPROFILE%` / `$HOME` is resolved at load time).
+
+On first load the skill runs **Bootstrap**: it creates the `home` tree, the standard roles, and the standard teams.
+
+> `config.json` is a local machine setting and is **not version-controlled** (see `.gitignore`);
+> only `config.example.json` is tracked.
 
 ## Layout
 
@@ -30,18 +88,6 @@ across sessions.
 The **task family home** is routed by `team_id`: team tasks → `workspaces\_teams\<team_id>\`;
 personal tasks → `workspaces\<soul_id>\`. `scratch\` holds one-off intermediates and is **not archived**;
 evidence to keep is written as an **independent artifact** in the task family home.
-
-## Install
-
-1. Place this directory in your agent's skills path (e.g. `my-skills/lilliput/`).
-2. Copy the config template:
-   - Windows: `copy config.example.json config.json`
-   - POSIX: `cp config.example.json config.json`
-3. Edit `config.json`'s `home` if needed (env syntax `%USERPROFILE%` / `$HOME` is resolved at load time).
-4. On first load the skill runs **Bootstrap**: it creates the `home` tree, the standard roles, and the standard teams.
-
-> `config.json` is a local machine setting and is **not version-controlled** (see `.gitignore`);
-> only `config.example.json` is tracked.
 
 ## Standard roster (created by Bootstrap)
 
