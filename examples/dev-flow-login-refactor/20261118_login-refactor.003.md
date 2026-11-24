@@ -20,11 +20,11 @@ at: 2026-11-18T11:00+08:00
 
 ## Artifacts
 
-- `C:\work\myapp\src\auth\login.ts`
+- `/work/myapp/src/auth/login.ts`
 
 ## Verification
 
 ```
-cd C:\work\myapp && npm test -- auth
+cd /work/myapp && npm test -- auth
 # 3 passing
 ```

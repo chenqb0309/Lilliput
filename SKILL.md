@@ -1,6 +1,7 @@
 ---
 name: lilliput
 description: Stateless multi-role agent orchestration based on a Soul Tree and disposable subagents. Persists context via absolute paths and task families (main file + ordered sub-files). Features dynamic recruitment (human approval required), declarative team-based workflow selection, context isolation, and automatic archiving.
+license: MIT
 ---
 
 # Lilliput — Stateless Multi-Agent Orchestration Protocol
@@ -10,20 +11,21 @@ description: Stateless multi-role agent orchestration based on a Soul Tree and d
 This skill separates **spec (this file)** from **data (organization & tasks)**. Locations come from `config.json`, independent of the working directory.
 
 - **Skill package**: this file's directory, provided by the harness at load time. This file hardcodes no paths.
-- **Organization home `home`**: from `config.json`'s `home`; default `%USERPROFILE%\.lilliput` (Windows) or `$HOME/.lilliput` (POSIX). `config.json` is local and must not be committed; only `config.example.json` is tracked.
+- **Organization home `home`**: from `config.json`'s `home`; default `%USERPROFILE%\.lilliput` on Windows, `$HOME/.lilliput` on POSIX. `config.json` is local and must not be committed; only `config.example.json` is tracked.
+- **Platform**: the protocol is OS-neutral. Every path is an **OS-native absolute path**; examples use `/` for brevity — substitute your platform's separator. Nothing assumes a drive letter or a particular shell.
 
 ```text
-<home>\
-├─ souls\
+<home>/
+├─ souls/
 │   ├─ index.md
-│   ├─ docs\        _branch.md   sub_doc.md
-│   ├─ engineering\ _branch.md   sub_code.md   sub_test.md
-│   └─ audit\       _branch.md   sub_audit.md
-├─ teams\           index.md   <team_id>.md            (workflow templates)
-├─ workspaces\
-│   ├─ _teams\<team_id>\   active\   archive\          (team task family home)
-│   └─ <soul_id>\          active\   archive\  scratch\
-└─ _legacy\          (retired assets, out of scope)
+│   ├─ docs/        _branch.md   sub_doc.md
+│   ├─ engineering/ _branch.md   sub_code.md   sub_test.md
+│   └─ audit/       _branch.md   sub_audit.md
+├─ teams/           index.md   <team_id>.md            (workflow templates)
+├─ workspaces/
+│   ├─ _teams/<team_id>/   active/   archive/          (team task family home)
+│   └─ <soul_id>/          active/   archive/  scratch/
+└─ _legacy/          (retired assets, out of scope)
 ```
 
 ### Task Family Home
@@ -32,19 +34,20 @@ A task family (main file + sub-files + artifacts) lives in exactly one place, ro
 
 | `team_id` | Task family home |
 |---|---|
-| not `-`(team task) | `<home>\workspaces\_teams\<team_id>\` |
-| `-`(personal task) | `<home>\workspaces\<soul_id>\` |
+| not `-` (team task) | `<home>/workspaces/_teams/<team_id>/` |
+| `-` (personal task) | `<home>/workspaces/<soul_id>/` |
 
-- Both contain `active\` and `archive\`.
+- Both contain `active/` and `archive/`.
 - **Team tasks never write into any member's personal folder**; `origin_soul` records who opened the task, not where files land.
-- Personal scratch (one-off scripts, intermediates) goes to `<home>\workspaces\<soul_id>\scratch\`; it is not archived. Evidence to keep never goes here — it is saved as an **independent artifact** in the task family home, named `<main_filename>.<NNN>.<name>.<ext>`.
+- Personal scratch (one-off scripts, intermediates) goes to `<home>/workspaces/<soul_id>/scratch/`; it is not archived. Evidence to keep never goes here — it is saved as an **independent artifact** in the task family home, named `<main_filename>.<NNN>.<name>.<ext>`.
 
 ### Config
 
-```json
-{
-  "home": "%USERPROFILE%\\.lilliput"
-}
+```jsonc
+// Windows
+{ "home": "%USERPROFILE%\\.lilliput" }
+// POSIX
+{ "home": "$HOME/.lilliput" }
 ```
 
 - **Hop limit is derived, not configured.** A team task's chain length is exactly its team's `members.Count`; a personal task is a single hop. The circuit breaker (Phase 4) uses that derived value — so adding or removing team members never requires editing config.
@@ -61,7 +64,7 @@ A task family (main file + sub-files + artifacts) lives in exactly one place, ro
 
 ## Phase 0: Bootstrap
 
-On first load, or if `<home>\souls\index.md`, `<home>\workspaces\`, or `<home>\teams\` is missing, do not ask the human — run this one-time setup:
+On first load, or if `<home>/souls/index.md`, `<home>/workspaces/`, or `<home>/teams/` is missing, do not ask the human — run this one-time setup:
 
 1. **Create `config.json`** by state:
    - **A — file missing**: first setup. Create with `home` resolved to an absolute path (`%USERPROFILE%\.lilliput` or `$HOME/.lilliput`). Continue with steps 2–5.
@@ -69,25 +72,25 @@ On first load, or if `<home>\souls\index.md`, `<home>\workspaces\`, or `<home>\t
    - **C — file exists and `home` exists**: reuse as-is.
 
    Check "file exists" first; only then check "`home` exists".
-2. **Create the standard tree** under `<home>`, per the diagram above: `souls\{docs,engineering,audit}\`, `workspaces\<soul_id>\{active,archive,scratch}\` for each of the four standard positions, `workspaces\_teams\`, and `teams\`.
-3. **Soul Tree index**: `souls\index.md` (top-level departments only) and one `_branch.md` per department.
+2. **Create the standard tree** under `<home>`, per the diagram above: `souls/{docs,engineering,audit}/`, `workspaces/<soul_id>/{active,archive,scratch}/` for each of the four standard positions, `workspaces/_teams/`, and `teams/`.
+3. **Soul Tree index**: `souls/index.md` (top-level departments only) and one `_branch.md` per department.
 4. **Four standard souls**: `sub_doc`, `sub_code`, `sub_test`, `sub_audit`. Front matter uses resolved absolute paths (`<home>` shown as a placeholder):
 
    ```yaml
    ---
    soul_id: sub_code
    department: engineering
-   workspace_dir: <home>\workspaces\sub_code\active
-   archive_dir:   <home>\workspaces\sub_code\archive
-   scratch_dir:   <home>\workspaces\sub_code\scratch
+   workspace_dir: <home>/workspaces/sub_code/active
+   archive_dir:   <home>/workspaces/sub_code/archive
+   scratch_dir:   <home>/workspaces/sub_code/scratch
    reference_docs:
-     - <home>\souls\index.md
-     - <home>\souls\engineering\_branch.md
+     - <home>/souls/index.md
+     - <home>/souls/engineering/_branch.md
    ---
    ```
 
    The body must contain **Scope & Boundaries** and **SOP**. The SOP must state that sub-files go to the **task family home** (see Task Family Home) — same directory as the main file — regardless of `scratch_dir`.
-5. **Two standard teams**: `teams\index.md` plus `dev-flow.md` and `doc-only.md`.
+5. **Two standard teams**: `teams/index.md` plus `dev-flow.md` and `doc-only.md`.
 
 ---
 
@@ -95,12 +98,12 @@ On first load, or if `<home>\souls\index.md`, `<home>\workspaces\`, or `<home>\t
 
 On every load (after Bootstrap), scan for unarchived tasks so a new Main can continue after an interruption. **Authoritative task state lives in files, not conversation context.**
 
-1. Enumerate main files (`<YYYYMMDD>_<slug>.md`; exclude `.NNN.md` and artifacts) in both `workspaces\*\active\` and `workspaces\_teams\*\active\`.
+1. Enumerate main files (`<YYYYMMDD>_<slug>.md`; exclude `.NNN.md` and artifacts) in both `workspaces/*/active/` and `workspaces/_teams/*/active/`.
 2. Read each main file's front matter (`task_id` / `team_id` / `status` / `hop_count` / `assigned_soul` / `updated_at`) and the latest sub-file.
 3. Determine the interruption point via the expected next sub-file `<main_filename>.<hop_count+1, 3 digits>.md`:
    - **exists** → the last hop finished but was not verified: go to Phase 4.
    - **missing** → the last hop was interrupted: re-dispatch to `assigned_soul` (team task: `members[hop_count]`) via Phase 3.
-   - `status: done/failed` still in `active\` → missed archive: notify the human, then archive.
+   - `status: done/failed` still in `active/` → missed archive: notify the human, then archive.
 4. Report a task board to the human: `task_id` / `status` / `hop_count` / `assigned_soul` / `updated_at` / one-line summary.
 5. Wait for the human: resume / abandon (`status: failed` then archive) / archive.
 
@@ -110,7 +113,7 @@ On every load (after Bootstrap), scan for unarchived tasks so a new Main can con
 
 A team is an **ordered `soul_id` list** plus a "when to use" line — no back-edges, no state machine (unidirectional relay).
 
-### Team file (`teams\<team_id>.md`)
+### Team file (`teams/<team_id>.md`)
 
 ```yaml
 ---
@@ -134,11 +137,11 @@ members:                 # ordered = workflow; all run
 > If sub_audit finds issues, it must not roll back: report to Main; the human opens a new round (new task family).
 ```
 
-`teams\index.md` lists `team_id` / `name` / `when_to_use`.
+`teams/index.md` lists `team_id` / `name` / `when_to_use`.
 
 ### Selection (Main, before each task)
 
-1. Read `teams\index.md`; match the request against `when_to_use`.
+1. Read `teams/index.md`; match the request against `when_to_use`.
 2. Report and confirm: "Using `<team_id>` (sequence: `a → b → c`)"; the user may override.
 3. **Simple-task check** (only before the human confirms the team): if the task is single-step, low-complexity, and doable by one soul, suggest simplifying to a personal task (`team_id: -`). Once the human keeps the team, do not question it again.
 4. No matching team → Assembly procedure; do not fabricate a workflow.
@@ -155,7 +158,7 @@ When no team fits, propose a Team Proposal: suggested `team_id` and name, `when_
 Task-chain context is a **task family** (a group of files), not one bloated file:
 
 ```text
-<task family home>\active\
+<task family home>/active/
 ├─ 20261113_fibonacci.md                  main: identity & state (single source of truth)
 ├─ 20261113_fibonacci.001.md              hop 1 output
 ├─ 20261113_fibonacci.002.md              hop 2 output
@@ -168,7 +171,7 @@ Task-chain context is a **task family** (a group of files), not one bloated file
 - Artifact: `<YYYYMMDD>_<slug>.<NNN>.<name>.<ext>`, same directory, archived with the family
 - `slug`: lowercase letters, digits, hyphens (e.g. `rfid-mapping-fix`)
 
-Sub-files are written to the **task family home** (same directory as the main file), never to a soul's own `workspaces\<soul_id>\` or `scratch\`.
+Sub-files are written to the **task family home** (same directory as the main file), never to a soul's own `workspaces/<soul_id>/` or `scratch/`.
 
 **Main file front matter (only Main writes):**
 
@@ -211,14 +214,14 @@ The Main Agent is a project manager and **must not do specialized detail work it
 
 > If a team is selected, the dispatch sequence equals its `members` (all run). Traversal still runs, to verify every member exists.
 
-1. Read `<home>\souls\index.md` to find the department, then its `_branch.md` for the best-matching role.
-2. If no role is competent for the domain, do not create one and dispatch. Propose a **New Role Recruitment Proposal** (suggested position / department, scope & boundaries, `reference_docs`) and pause for **human approval**; only then create the soul file, update the branch and index, and create `workspaces\<soul_id>\{active,archive,scratch}`.
+1. Read `<home>/souls/index.md` to find the department, then its `_branch.md` for the best-matching role.
+2. If no role is competent for the domain, do not create one and dispatch. Propose a **New Role Recruitment Proposal** (suggested position / department, scope & boundaries, `reference_docs`) and pause for **human approval**; only then create the soul file, update the branch and index, and create `workspaces/<soul_id>/{active,archive,scratch}`.
 
 ---
 
 ## Phase 2: Task Family Provisioning
 
-1. Create the main file in the task family home's `active\` (see Task Family Home; create `workspaces\_teams\<team_id>\{active,archive}` first if needed).
+1. Create the main file in the task family home's `active/` (see Task Family Home; create `workspaces/_teams/<team_id>/{active,archive}` first if needed).
 2. Body:
 
    ```markdown
@@ -250,9 +253,9 @@ The Main Agent is a project manager and **must not do specialized detail work it
    2. Read the main file: <main file absolute path> — task_id, target_dir, segments
    3. Read all existing sub-files in ascending order: <sub-file absolute paths>
    4. Follow your SOP; write output to target_dir (if "-", to your own scratch_dir — scratch is one-off only; no evidence here)
-   5. Write exactly ONE new sub-file: <task family home>\<main filename>.<hop_count+1, 3 digits>.md
-      (same directory as the main file; never into your own workspaces\<soul_id>\ or scratch\)
-      Save any evidence as <task family home>\<main filename>.<hop>.<name>.<ext>
+   5. Write exactly ONE new sub-file: <task family home>/<main filename>.<hop_count+1, 3 digits>.md
+      (same directory as the main file; never into your own workspaces/<soul_id>/ or scratch/)
+      Save any evidence as <task family home>/<main filename>.<hop>.<name>.<ext>
    6. Never modify or overwrite the main file or any existing sub-file
    7. Report ONLY a receipt:
       task_id / main_file / sub_file / hop / soul_id / status (done|failed|blocked) / summary (<=3 lines) / next_hint
@@ -270,5 +273,5 @@ The Main Agent is a project manager and **must not do specialized detail work it
 3. **No rollback**: if a hop reports `failed` / `blocked`, do not roll back or rewrite sub-files; record `status: failed` and report; the human defines a new round (new task family).
 4. **Atomic main file update**: Main only; write a temp file, then rename over the original.
 5. **Circuit breaker (derived)**: the limit is the task's expected hop count — `members.Count` for a team task, `1` for a personal task. The chain completes exactly at that count; if `hop_count` would exceed it, the chain is malformed — stop and report. Nothing to configure.
-6. **Archive**: on pass, Move the whole family (main + sub-files + artifacts) from the home's `active\` to its `archive\`.
+6. **Archive**: on pass, Move the whole family (main + sub-files + artifacts) from the home's `active/` to its `archive/`.
 7. **Report** the result and archive path.

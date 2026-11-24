@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate the example task family
+        run: node scripts/validate-task-family.mjs examples/dev-flow-login-refactor
+
+      - name: Check SKILL.md front matter
+        run: |
+          node -e '
+            const t = require("fs").readFileSync("SKILL.md", "utf8");
+            const ok = t.startsWith("---") && /^name:\s*\S+/m.test(t) && /^description:\s*\S+/m.test(t);
+            if (!ok) { console.error("SKILL.md is missing valid front matter (name/description)"); process.exit(1); }
+            console.log("SKILL.md front matter OK");
+          '

@@ -20,13 +20,13 @@ Tests written first, pinning the acceptance criteria before any refactor.
 
 ## Artifacts
 
-- `C:\work\myapp\src\auth\auth.spec.ts`
-- `C:\work\myapp\src\auth\session.spec.ts`
-- `C:\work\myapp\src\auth\audit.spec.ts`
+- `/work/myapp/src/auth/auth.spec.ts`
+- `/work/myapp/src/auth/session.spec.ts`
+- `/work/myapp/src/auth/audit.spec.ts`
 
 ## Verification
 
 ```
-cd C:\work\myapp && npm test -- auth
+cd /work/myapp && npm test -- auth
 # 3 failing (auth, session, audit) — the contract to satisfy next
 ```

@@ -18,7 +18,7 @@ Audit passed. Public API unchanged; tests green; one low-risk note recorded (not
 
 - Re-ran the suite independently:
   ```
-  cd C:\work\myapp && npm test -- auth
+  cd /work/myapp && npm test -- auth
   # 3 passing (reproduced)
   ```
 - Diff confirms the exported `login(user, pass)` signature is byte-identical.

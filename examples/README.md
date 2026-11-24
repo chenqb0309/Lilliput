@@ -14,6 +14,6 @@ dev-flow-login-refactor/
 ```
 
 In a real run this folder would sit under
-`<home>\workspaces\_teams\dev-flow\archive\` once the task passed verification, and the paths inside
+`<home>/workspaces/_teams/dev-flow/archive/` once the task passed verification, and the paths inside
 would be the real absolute paths on that machine. Here they use an illustrative project root
-(`C:\work\myapp`) and are not meant to be executed.
+(`/work/myapp`) and are not meant to be executed.

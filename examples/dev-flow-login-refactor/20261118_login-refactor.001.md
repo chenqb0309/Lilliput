@@ -18,7 +18,7 @@ Task board opened for the login refactor; scope and hand-off order recorded.
 
 ## Artifacts
 
-- `C:\work\myapp\docs\login-refactor-board.md`
+- `/work/myapp/docs/login-refactor-board.md`
 
 ## Verification
 

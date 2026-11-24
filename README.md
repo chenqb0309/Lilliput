@@ -27,7 +27,7 @@ You:  go
 Lilliput provisions a **task family** and relays it, one role at a time:
 
 ```text
-<home>\workspaces\_teams\dev-flow\active\
+<home>/workspaces/_teams/dev-flow/active/
 ├─ 20261118_login-refactor.md        ← main file: identity & state (single source of truth)
 ├─ 20261118_login-refactor.001.md    ← sub_doc : task board
 ├─ 20261118_login-refactor.002.md    ← sub_test: tests first
@@ -58,9 +58,9 @@ The **main file is the single source of truth**; every hop appends one immutable
 
 | Concept | Description |
 |---|---|
-| **Soul** | A role definition (scope & boundaries + SOP) stored under `souls\`. |
-| **Soul Tree** | Two-level lookup: department (`_branch.md`) → role (`<soul>.md`); root is `souls\index.md`. |
-| **Team** | A reusable **workflow template** = an ordered `soul_id` list, stored under `teams\`. |
+| **Soul** | A role definition (scope & boundaries + SOP) stored under `souls/`. |
+| **Soul Tree** | Two-level lookup: department (`_branch.md`) → role (`<soul>.md`); root is `souls/index.md`. |
+| **Team** | A reusable **workflow template** = an ordered `soul_id` list, stored under `teams/`. |
 | **Task family** | One task's context: a **main file** (single source of truth) + ordered **sub-files** + independent artifacts. |
 | **Main Agent** | Project manager: traverse the tree, pick a team, provision the task family, dispatch, verify, archive — never doing specialized detail work itself. |
 
@@ -105,17 +105,17 @@ On first load the skill runs **Bootstrap**: it creates the `home` tree, the stan
 ## Layout
 
 ```text
-<home>\
-├─ souls\                       roles (index.md / per-department _branch.md / <soul>.md)
-├─ teams\                       workflow templates (index.md / <team_id>.md)
-├─ workspaces\
-│   ├─ _teams\<team_id>\        active\  archive\   (team task family home)
-│   └─ <soul_id>\               active\  archive\  scratch\
-└─ _legacy\                     retired assets
+<home>/
+├─ souls/                       roles (index.md / per-department _branch.md / <soul>.md)
+├─ teams/                       workflow templates (index.md / <team_id>.md)
+├─ workspaces/
+│   ├─ _teams/<team_id>/        active/  archive/   (team task family home)
+│   └─ <soul_id>/               active/  archive/  scratch/
+└─ _legacy/                     retired assets
 ```
 
-The **task family home** is routed by `team_id`: team tasks → `workspaces\_teams\<team_id>\`;
-personal tasks → `workspaces\<soul_id>\`. `scratch\` holds one-off intermediates and is **not archived**;
+The **task family home** is routed by `team_id`: team tasks → `workspaces/_teams/<team_id>/`;
+personal tasks → `workspaces/<soul_id>/`. `scratch/` holds one-off intermediates and is **not archived**;
 evidence to keep is written as an **independent artifact** in the task family home.
 
 ## Standard roster (created by Bootstrap)
@@ -130,8 +130,8 @@ same rule via the **Team Proposal**.
 ## Operating flow (Main Agent)
 
 ```
-Resume scan (unarchived tasks in active\)
- → Team selection (match teams\index.md against when_to_use; confirm; optionally suggest a single-soul task)
+Resume scan (unarchived tasks in active/)
+ → Team selection (match teams/index.md against when_to_use; confirm; optionally suggest a single-soul task)
  → Soul Tree traversal (verify members exist; recruit if missing)
  → Provision the task family (write the main file; write intent first)
  → Dispatch (background: true; wait for the notification)
@@ -154,6 +154,13 @@ Resume scan (unarchived tasks in active\)
   is archived with the family.
 - **Derived hop limit.** A chain's length equals its team's `members.Count` (a personal task is one hop), so the
   circuit breaker needs no global setting — growing or shrinking a team never breaks it.
+
+## Docs
+
+- [`REQUIREMENTS.md`](./REQUIREMENTS.md) — the host-agent capabilities the protocol needs.
+- [`docs/CONFORMANCE.md`](./docs/CONFORMANCE.md) — what a conforming task family looks like, plus the validator.
+- [`docs/TROUBLESHOOTING.md`](./docs/TROUBLESHOOTING.md) — failure modes and fixes.
+- [`CHANGELOG.md`](./CHANGELOG.md) — version history.
 
 ## Author
 
