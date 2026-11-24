@@ -123,6 +123,8 @@ Resume scan (unarchived tasks in active\)
   conversation, so a new Main can resume after an interruption.
 - **Evidence is durable, scratch is not.** Anything worth keeping is an artifact in the task family home and
   is archived with the family.
+- **Derived hop limit.** A chain's length equals its team's `members.Count` (a personal task is one hop), so the
+  circuit breaker needs no global setting — growing or shrinking a team never breaks it.
 
 ## License
 

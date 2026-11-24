@@ -1,4 +1,3 @@
 {
-  "home": "%USERPROFILE%\\.lilliput",
-  "max_hops": 6
+  "home": "%USERPROFILE%\\.lilliput"
 }

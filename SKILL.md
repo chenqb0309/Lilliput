@@ -43,12 +43,11 @@ A task family (main file + sub-files + artifacts) lives in exactly one place, ro
 
 ```json
 {
-  "home": "%USERPROFILE%\\.lilliput",
-  "max_hops": 6
+  "home": "%USERPROFILE%\\.lilliput"
 }
 ```
 
-- `max_hops`: per-chain hop limit (circuit breaker); must be greater than the longest team's `members` count.
+- **Hop limit is derived, not configured.** A team task's chain length is exactly its team's `members.Count`; a personal task is a single hop. The circuit breaker (Phase 4) uses that derived value — so adding or removing team members never requires editing config.
 - `home` accepts env syntax (`%USERPROFILE%` / `$HOME`) and must be resolved to an absolute path before use.
 
 ### Hard Rules
@@ -65,7 +64,7 @@ A task family (main file + sub-files + artifacts) lives in exactly one place, ro
 On first load, or if `<home>\souls\index.md`, `<home>\workspaces\`, or `<home>\teams\` is missing, do not ask the human — run this one-time setup:
 
 1. **Create `config.json`** by state:
-   - **A — file missing**: first setup. Create with `home` resolved to an absolute path (`%USERPROFILE%\.lilliput` or `$HOME/.lilliput`) and `max_hops = 6`. Continue with steps 2–5.
+   - **A — file missing**: first setup. Create with `home` resolved to an absolute path (`%USERPROFILE%\.lilliput` or `$HOME/.lilliput`). Continue with steps 2–5.
    - **B — file exists but `home` is missing on disk**: machine / user / drive change. Apply Hard Rule 3: stop and report; do not guess or rewrite; do not treat as A.
    - **C — file exists and `home` exists**: reuse as-is.
 
@@ -270,6 +269,6 @@ The Main Agent is a project manager and **must not do specialized detail work it
 2. **Unidirectional handoff**: update the main file — `hop_count + 1`, `assigned_soul` = next, append the sub-file number to `segments`, `status: handoff`, `updated_at` now. **Team-driven**: next hop = `members[hop_count]`, no skipping; after the last member the task is complete. Then repeat Phases 1–4.
 3. **No rollback**: if a hop reports `failed` / `blocked`, do not roll back or rewrite sub-files; record `status: failed` and report; the human defines a new round (new task family).
 4. **Atomic main file update**: Main only; write a temp file, then rename over the original.
-5. **Circuit breaker**: at `hop_count == max_hops`, stop and report.
+5. **Circuit breaker (derived)**: the limit is the task's expected hop count — `members.Count` for a team task, `1` for a personal task. The chain completes exactly at that count; if `hop_count` would exceed it, the chain is malformed — stop and report. Nothing to configure.
 6. **Archive**: on pass, Move the whole family (main + sub-files + artifacts) from the home's `active\` to its `archive\`.
 7. **Report** the result and archive path.
