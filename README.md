@@ -37,6 +37,23 @@ Lilliput provisions a **task family** and relays it, one role at a time:
 
 Then **close the window and open a new session**: Lilliput reads the main file, sees which hop is next, and resumes. No memory, no lost context.
 
+A full worked example lives in [`examples/dev-flow-login-refactor/`](./examples/dev-flow-login-refactor/).
+
+## Architecture
+
+```mermaid
+flowchart TD
+    U([User request]) --> R[Main: resume scan of active/]
+    R --> T[Team selection<br/>match when_to_use, confirm]
+    T --> P[Provision task family<br/>write main file]
+    P --> D[Dispatch next hop<br/>background: true]
+    D -. notification .-> V[Verify sub-file]
+    V -->|more members| D
+    V -->|all members done| A[Archive family]
+```
+
+The **main file is the single source of truth**; every hop appends one immutable sub-file. Because state is on disk, any new session can rebuild the picture from the files alone.
+
 ## Core concepts
 
 | Concept | Description |
@@ -46,6 +63,18 @@ Then **close the window and open a new session**: Lilliput reads the main file, 
 | **Team** | A reusable **workflow template** = an ordered `soul_id` list, stored under `teams\`. |
 | **Task family** | One task's context: a **main file** (single source of truth) + ordered **sub-files** + independent artifacts. |
 | **Main Agent** | Project manager: traverse the tree, pick a team, provision the task family, dispatch, verify, archive — never doing specialized detail work itself. |
+
+## How it compares
+
+| Approach | Where the state lives | Who defines the workflow | Survives a restart |
+|---|---|---|---|
+| `AGENTS.md` / system prompt | the prompt | you, implicitly | No |
+| CrewAI / AutoGen | in-process memory | code-defined crews | Not by default |
+| LangGraph | a graph you write | explicit state machine in code | Only with your own checkpointing |
+| Ad-hoc subagent delegation | the chat | ad-hoc, per request | No |
+| **Lilliput** | **plain files on disk** | **declarative teams + human-gated recruitment** | **Yes — resume from the main file** |
+
+Lilliput is deliberately small: it is a **protocol**, not a runtime. It composes with any agent that can run subagents and read/write files.
 
 ## Install
 
@@ -125,6 +154,10 @@ Resume scan (unarchived tasks in active\)
   is archived with the family.
 - **Derived hop limit.** A chain's length equals its team's `members.Count` (a personal task is one hop), so the
   circuit breaker needs no global setting — growing or shrinking a team never breaks it.
+
+## Author
+
+Built by [Jet Chen](https://github.com/chenqb0309).
 
 ## License
 

@@ -19,11 +19,11 @@ This skill separates **spec (this file)** from **data (organization & tasks)**. 
 │   ├─ docs\        _branch.md   sub_doc.md
 │   ├─ engineering\ _branch.md   sub_code.md   sub_test.md
 │   └─ audit\       _branch.md   sub_audit.md
-├─ teams\           index.md   <team_id>.md            （workflow templates）
+├─ teams\           index.md   <team_id>.md            (workflow templates)
 ├─ workspaces\
-│   ├─ _teams\<team_id>\   active\   archive\          （team task family home）
+│   ├─ _teams\<team_id>\   active\   archive\          (team task family home)
 │   └─ <soul_id>\          active\   archive\  scratch\
-└─ _legacy\          （retired assets, out of scope）
+└─ _legacy\          (retired assets, out of scope)
 ```
 
 ### Task Family Home
@@ -32,8 +32,8 @@ A task family (main file + sub-files + artifacts) lives in exactly one place, ro
 
 | `team_id` | Task family home |
 |---|---|
-| not `-`（team task） | `<home>\workspaces\_teams\<team_id>\` |
-| `-`（personal task） | `<home>\workspaces\<soul_id>\` |
+| not `-`(team task) | `<home>\workspaces\_teams\<team_id>\` |
+| `-`(personal task) | `<home>\workspaces\<soul_id>\` |
 
 - Both contain `active\` and `archive\`.
 - **Team tasks never write into any member's personal folder**; `origin_soul` records who opened the task, not where files land.
