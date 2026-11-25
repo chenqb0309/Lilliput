@@ -3,6 +3,16 @@
 All notable changes to Lilliput are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-11-25
+
+- **Necessity triage (Phase 4)**: every `this-round` finding is triaged as `fix` / `defer` / `accept`.
+  Only `fix` (runtime behaviour, correctness, security, data integrity, false-green gates) opens the next round;
+  `defer` (docs, version claims, evidence, test-coverage niceties) and `accept` (process, naming, cosmetic)
+  are recorded and close with the family. An audit finding is a proposal, not a mandate.
+- **Convergence redefined**: closure = zero `fix`-class findings, not zero findings. Without this, an audit's
+  unbounded findings would always burn the round cap.
+- **Audit output contract**: findings now carry `origin`, `runtime_impact`, and a suggested disposition.
+
 ## [1.1.0] - 2026-11-25
 
 - **Closure loop (Phase 4)**: audit findings carry `origin: this-round | pre-existing`.

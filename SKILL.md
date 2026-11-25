@@ -272,9 +272,15 @@ The Main Agent is a project manager and **must not do specialized detail work it
 2. **Unidirectional handoff**: update the main file — `hop_count + 1`, `assigned_soul` = next, append the sub-file number to `segments`, `status: handoff`, `updated_at` now. **Team-driven**: next hop = `members[hop_count]`, no skipping; after the last member the task is complete. Then repeat Phases 1–4.
 3. **No rollback**: if a hop reports `failed` / `blocked`, do not roll back or rewrite sub-files; record `status: failed` and report.
 4. **Provenance classification (after an audit hop)**: classify every audit finding as `origin: this-round` (traceable to the current change set) or `origin: pre-existing` (existed before this task family). A finding without a stated origin is treated as `this-round`.
-5. **Closure loop**: `this-round` findings are self-caused defects. Main **automatically opens the next round** — a new task family with the same `team_id`, whose Task Goal is exactly those findings — without waiting for human approval, and repeats until that round's audit reports zero `this-round` findings. `pre-existing` findings are recorded in the report and left for the human to schedule.
-6. **Closure cap**: at most 2 consecutive self-fix rounds per original task family, and each round must strictly reduce the `this-round` finding count. If the cap is reached or the count does not drop, stop and report to the human instead of looping.
-7. **Atomic main file update**: Main only; write a temp file, then rename over the original.
-8. **Circuit breaker (derived)**: the limit is the task's expected hop count — `members.Count` for a team task, `1` for a personal task. The chain completes exactly at that count; if `hop_count` would exceed it, the chain is malformed — stop and report. Nothing to configure. The closure loop does not violate this: each self-fix round is its own task family with its own hop count.
-9. **Archive**: on pass, Move the whole family (main + sub-files + artifacts) from the home's `active/` to its `archive/`.
-10. **Report** the result and archive path.
+5. **Necessity triage (gate)**: for every `this-round` finding, Main assigns a disposition and records one line of rationale:
+   - `fix` — changes runtime behaviour, correctness, security, data integrity, or prevents a false-green deploy/health gate.
+   - `defer` — documentation wording, version claims, evidence recording, or test-coverage niceties with no runtime impact; recorded for natural pickup.
+   - `accept` — process, whitelist, naming, or cosmetic; the risk is understood and accepted.
+   Low/info findings default to `defer`/`accept`; they must not become `fix` without a runtime-impact reason. **An audit finding is a proposal, not a mandate.**
+6. **Closure loop**: only `fix` dispositions open the next round — a new task family with the same `team_id`, whose Task Goal is exactly those findings — without waiting for human approval. `defer`/`accept` items are recorded in the report and close with the family.
+7. **Convergence**: closure means **zero `fix`-class findings**, not zero findings. An audit must not block closure on `defer`/`accept` items; if it does, Main re-triages and reports the disagreement.
+8. **Closure cap**: at most 2 consecutive self-fix rounds per original task family, and each round must strictly reduce the `fix`-class count. If the cap is reached or the count does not drop, stop and report to the human. The cap is a safety net, not the convergence mechanism.
+9. **Atomic main file update**: Main only; write a temp file, then rename over the original.
+10. **Circuit breaker (derived)**: the limit is the task's expected hop count — `members.Count` for a team task, `1` for a personal task. The chain completes exactly at that count; if `hop_count` would exceed it, the chain is malformed — stop and report. Nothing to configure. The closure loop does not violate this: each self-fix round is its own task family with its own hop count.
+11. **Archive**: on pass, Move the whole family (main + sub-files + artifacts) from the home's `active/` to its `archive/`.
+12. **Report** the result and archive path.
