@@ -3,6 +3,16 @@
 All notable changes to Lilliput are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-11-25
+
+- **Closure loop (Phase 4)**: audit findings carry `origin: this-round | pre-existing`.
+  `this-round` findings automatically open the next round (same `team_id`, new task family) until that
+  round's audit reports zero of them; `pre-existing` findings are recorded and left for the human.
+  Capped at 2 consecutive self-fix rounds, each of which must strictly reduce the `this-round` count.
+- **Provenance is mandatory**: a finding without an `origin` is treated as `this-round`.
+- **No rollback unchanged**: sub-files remain immutable; closure uses new task families, and each round
+  keeps its own derived hop limit.
+
 ## [1.0.0] - 2026-11-24
 
 First public release.

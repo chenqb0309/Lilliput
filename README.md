@@ -146,8 +146,9 @@ Resume scan (unarchived tasks in active/)
 
 ## Design notes
 
-- **No back-edges.** A team is a one-way relay. If audit finds issues, it reports to Main and the human opens a
-  new round (a new task family) — the `hop_count` never decreases.
+- **No back-edges.** A team is a one-way relay. If audit finds issues, it reports to Main; `this-round` findings
+  automatically open the next round (a new task family, capped at 2) until closure, while `pre-existing` findings
+  are left for the human — the `hop_count` never decreases.
 - **Recovery over memory.** Authoritative task state lives in the main file's front matter, not in the
   conversation, so a new Main can resume after an interruption.
 - **Evidence is durable, scratch is not.** Anything worth keeping is an artifact in the task family home and

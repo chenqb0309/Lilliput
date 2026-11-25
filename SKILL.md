@@ -270,8 +270,11 @@ The Main Agent is a project manager and **must not do specialized detail work it
 
 1. **Claim & verify**: map the notification via `task_id` / `main_file`, read the new sub-file. If it fails, record `status: failed` and report.
 2. **Unidirectional handoff**: update the main file — `hop_count + 1`, `assigned_soul` = next, append the sub-file number to `segments`, `status: handoff`, `updated_at` now. **Team-driven**: next hop = `members[hop_count]`, no skipping; after the last member the task is complete. Then repeat Phases 1–4.
-3. **No rollback**: if a hop reports `failed` / `blocked`, do not roll back or rewrite sub-files; record `status: failed` and report; the human defines a new round (new task family).
-4. **Atomic main file update**: Main only; write a temp file, then rename over the original.
-5. **Circuit breaker (derived)**: the limit is the task's expected hop count — `members.Count` for a team task, `1` for a personal task. The chain completes exactly at that count; if `hop_count` would exceed it, the chain is malformed — stop and report. Nothing to configure.
-6. **Archive**: on pass, Move the whole family (main + sub-files + artifacts) from the home's `active/` to its `archive/`.
-7. **Report** the result and archive path.
+3. **No rollback**: if a hop reports `failed` / `blocked`, do not roll back or rewrite sub-files; record `status: failed` and report.
+4. **Provenance classification (after an audit hop)**: classify every audit finding as `origin: this-round` (traceable to the current change set) or `origin: pre-existing` (existed before this task family). A finding without a stated origin is treated as `this-round`.
+5. **Closure loop**: `this-round` findings are self-caused defects. Main **automatically opens the next round** — a new task family with the same `team_id`, whose Task Goal is exactly those findings — without waiting for human approval, and repeats until that round's audit reports zero `this-round` findings. `pre-existing` findings are recorded in the report and left for the human to schedule.
+6. **Closure cap**: at most 2 consecutive self-fix rounds per original task family, and each round must strictly reduce the `this-round` finding count. If the cap is reached or the count does not drop, stop and report to the human instead of looping.
+7. **Atomic main file update**: Main only; write a temp file, then rename over the original.
+8. **Circuit breaker (derived)**: the limit is the task's expected hop count — `members.Count` for a team task, `1` for a personal task. The chain completes exactly at that count; if `hop_count` would exceed it, the chain is malformed — stop and report. Nothing to configure. The closure loop does not violate this: each self-fix round is its own task family with its own hop count.
+9. **Archive**: on pass, Move the whole family (main + sub-files + artifacts) from the home's `active/` to its `archive/`.
+10. **Report** the result and archive path.
