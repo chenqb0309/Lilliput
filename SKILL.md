@@ -1,10 +1,22 @@
 ---
 name: lilliput
-description: Stateless multi-role agent orchestration based on a Soul Tree and disposable subagents. Persists context via absolute paths and task families (main file + ordered sub-files). Features dynamic recruitment (human approval required), declarative team-based workflow selection, context isolation, and automatic archiving.
+description: "Use when solving a problem: first consider whether a specialist role already exists. Stateless multi-role orchestration over a Soul Tree, with disposable subagents, task families and declarative team workflows, so the Main agent directs instead of searching by hand."
 license: MIT
 ---
 
 # Lilliput — Stateless Multi-Agent Orchestration Protocol
+
+## When to load
+
+Load this skill **before** doing the work yourself, whenever the task is not a single known-scope lookup — in particular investigation, evidence gathering (logs, DB, cross-service correlation), anything spanning several steps, or anything where you would otherwise start searching paths, files or systems by trial and error.
+
+Once loaded, check `souls/index.md` first:
+
+- If a role already owns that domain, open a task family and dispatch it. **Do not re-derive by hand what a role's reference docs already state.**
+- If no role fits, use the Assembly / Recruitment path (human approval required).
+- Doing the work yourself is the fallback, not the default — and when you take it, be able to say why no specialist applied.
+
+This is a preference, not an absolute rule: a one-step, known-scope lookup may be cheaper to do directly than to dispatch. The test is whether the work needs **domain evidence or multi-step trial**, not whether certain words appeared in the request.
 
 ## Path Contract (read first)
 
